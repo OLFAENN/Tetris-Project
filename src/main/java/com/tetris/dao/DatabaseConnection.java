@@ -5,9 +5,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/tetris_db";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "Olfa2003"; // Mot de passe root MySQL
+    // Configuration pour base de données distante
+    // Remplacez par votre IP publique ou nom de domaine
+    private static final String HOST = "10.21.82.75"; // Votre IP locale
+    private static final String PORT = "3306";
+    private static final String DATABASE = "tetris_db";
+    private static final String USERNAME = "tetris_user"; // Utilisateur créé pour les connexions distantes
+    private static final String PASSWORD = "votre_mot_de_passe_securise";
+    
+    private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE + 
+                                     "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     
     private static DatabaseConnection instance;
     private Connection connection;
@@ -29,7 +36,13 @@ public class DatabaseConnection {
     
     public Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            try {
+                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                System.out.println("Connexion à la base de données distante établie");
+            } catch (SQLException e) {
+                System.err.println("Erreur de connexion à la base de données: " + e.getMessage());
+                throw e;
+            }
         }
         return connection;
     }
@@ -38,6 +51,7 @@ public class DatabaseConnection {
         if (connection != null) {
             try {
                 connection.close();
+                System.out.println("Connexion à la base de données fermée");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -72,9 +86,21 @@ public class DatabaseConnection {
             conn.createStatement().execute(createUsersTable);
             conn.createStatement().execute(createScoresTable);
             
+            System.out.println("Base de données distante initialisée avec succès");
+            
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to initialize database", e);
+        }
+    }
+    
+    // Méthode pour tester la connexion
+    public boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn != null && !conn.isClosed();
+        } catch (SQLException e) {
+            System.err.println("Test de connexion échoué: " + e.getMessage());
+            return false;
         }
     }
 } 
