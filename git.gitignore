@@ -1,0 +1,25 @@
+# Fichiers de compilation
+*.class
+
+# Dossiers de build
+/bin/
+/target/
+
+# Log files
+*.log
+
+# Fichiers IDE
+*.iml
+*.ipr
+*.iws
+.idea/
+*.swp
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Autres
+.DS_Store
+Thumbs.db
